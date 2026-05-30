@@ -1,0 +1,9 @@
+# Raw image tree (~783 MB, 263k files): the upstream input. Reconstructable from
+# the committed Dataset.bin parts, so it is not tracked. The trailing slash scopes
+# this to the directory, leaving Dataset.bin / Dataset.bin.NNN unaffected.
+Dataset/
+
+# Reassembled lossless source of truth (~332 MB): rebuilt on demand from the
+# committed Dataset.bin.NNN chunks. Only the parts are tracked (each < 100 MB,
+# under GitHub's per-file cap); this concatenated form is not.
+Dataset.bin

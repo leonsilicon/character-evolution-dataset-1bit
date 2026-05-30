@@ -1,0 +1,84 @@
+{
+  "name": "character-evolution-dataset-1bit",
+  "version": "0.0.0",
+  "description": "Single-file, random-access dataset of ~263k Chinese character-evolution glyph images, packed as 1-bit black & white into one ~35 MB file with a tiny reader for Node, the browser, and React Native.",
+  "keywords": [
+    "1-bit",
+    "black-and-white",
+    "characters",
+    "chinese",
+    "dataset",
+    "evolution",
+    "glyphs",
+    "oracle-bone",
+    "zstd"
+  ],
+  "homepage": "https://github.com/leonsilicon/character-evolution-dataset#readme",
+  "bugs": {
+    "url": "https://github.com/leonsilicon/character-evolution-dataset/issues"
+  },
+  "license": "MIT",
+  "author": "Leon Si <leon@leonsilicon.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leonsilicon/character-evolution-dataset.git"
+  },
+  "workspaces": [
+    "packages/com/npmjs/*"
+  ],
+  "files": [
+    "dist",
+    "dataset.bin"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/_.d.mts",
+      "default": "./dist/_.mjs"
+    },
+    "./node": {
+      "types": "./dist/_node.d.mts",
+      "default": "./dist/_node.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "dataset:source": "bun run src/__build-dataset.ts --source data/Dataset --out data/Dataset.bin --black-white false --quantize 256 --max-side 0 && bun run src/__split-source.ts",
+    "dataset:build": "bun run src/__build-dataset.ts --out dataset.bin",
+    "dataset:restore": "bun run src/__restore-dataset.ts",
+    "prepublishOnly": "vp run build",
+    "prepare": "vp config"
+  },
+  "dependencies": {
+    "fzstd": "^0.1.1",
+    "ufo": "^1.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "@typescript/native-preview": "7.0.0-dev.20260509.2",
+    "bumpp": "^11.1.0",
+    "sharp": "^0.34.5",
+    "typescript": "^6.0.3",
+    "vite-plus": "^0.1.20"
+  },
+  "peerDependencies": {
+    "sharp": "^0.34.5"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+  },
+  "packageManager": "bun@1.3.14"
+}
