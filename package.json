@@ -13,15 +13,15 @@
     "oracle-bone",
     "zstd"
   ],
-  "homepage": "https://github.com/leonsilicon/character-evolution-dataset#readme",
+  "homepage": "https://github.com/leonsilicon/character-evolution-dataset-1bit#readme",
   "bugs": {
-    "url": "https://github.com/leonsilicon/character-evolution-dataset/issues"
+    "url": "https://github.com/leonsilicon/character-evolution-dataset-1bit/issues"
   },
   "license": "MIT",
   "author": "Leon Si <leon@leonsilicon.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leonsilicon/character-evolution-dataset.git"
+    "url": "git+https://github.com/leonsilicon/character-evolution-dataset-1bit.git"
   },
   "workspaces": [
     "packages/com/npmjs/*"

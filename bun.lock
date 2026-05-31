@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "character-evolution-dataset",
+      "name": "character-evolution-dataset-1bit",
       "dependencies": {
         "fzstd": "^0.1.1",
         "ufo": "^1.6.4",
