@@ -1,6 +1,6 @@
 {
   "name": "character-evolution-dataset-1bit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Single-file, random-access dataset of ~263k Chinese character-evolution glyph images, packed as 1-bit black & white into one ~35 MB file with a tiny reader for Node, the browser, and React Native.",
   "keywords": [
     "1-bit",
