@@ -219,13 +219,18 @@ async function decodeFromReader(
       pixels: Buffer.from(g.pixels),
     };
   }
-  const { data, info } = await sharp(Buffer.from(g.pixels), {
+  let pipeline = sharp(Buffer.from(g.pixels), {
     raw: { width: g.width, height: g.height, channels },
   })
-    .resize(maxSide, maxSide, { fit: "inside", withoutEnlargement: true, kernel: "lanczos3" })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  return { key, width: info.width, height: info.height, channels, pixels: data };
+    .resize(maxSide, maxSide, { fit: "inside", withoutEnlargement: true, kernel: "lanczos3" });
+  if (channels === 1) {
+    pipeline = pipeline.greyscale();
+  }
+  const { data, info } = await pipeline.raw().toBuffer({ resolveWithObject: true });
+  if (info.channels !== 1 && info.channels !== 3) {
+    throw new Error(`Unsupported resized channel count ${info.channels} for ${key}`);
+  }
+  return { key, width: info.width, height: info.height, channels: info.channels, pixels: data };
 }
 
 /**

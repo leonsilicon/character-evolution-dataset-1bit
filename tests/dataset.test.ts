@@ -257,6 +257,34 @@ describe("DatasetReader roundtrip", () => {
     expect(small.height).toBe(40);
   });
 
+  test("sourceBin repack preserves resized grayscale channel metadata", async () => {
+    const ssrc = path.join(tmp, "sourcebin-src");
+    await mkdir(path.join(ssrc, "00001"), { recursive: true });
+    await makePng(path.join(ssrc, "00001"), "big_gray.png", 200, 100, (x) =>
+      x < 100 ? [0, 0, 0] : [255, 255, 255],
+    );
+    await makePng(path.join(ssrc, "00001"), "small_gray.png", 20, 10, () => [255, 255, 255]);
+
+    const sourceBin = path.join(tmp, "sourcebin-source.bin");
+    await pack({ sourceDir: ssrc, outFile: sourceBin, maxSide: 0 });
+
+    const repacked = path.join(tmp, "sourcebin-repacked.bin");
+    await pack({ sourceBin, outFile: repacked, maxSide: 64, blockSize: 1 });
+
+    const reader = await openDatasetFile(repacked);
+    const big = reader.getRaw("00001/big_gray");
+    expect(big.channels).toBe(1);
+    expect(big.width).toBe(64);
+    expect(big.height).toBe(32);
+    expect(big.pixels.length).toBe(big.width * big.height);
+
+    const small = reader.getRaw("00001/small_gray");
+    expect(small.channels).toBe(1);
+    expect(small.width).toBe(20);
+    expect(small.height).toBe(10);
+    expect(small.pixels.length).toBe(small.width * small.height);
+  });
+
   test("blackWhite stores only pure black and white", async () => {
     const bsrc = path.join(tmp, "bsrc");
     await mkdir(path.join(bsrc, "00001"), { recursive: true });
