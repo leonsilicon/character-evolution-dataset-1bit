@@ -113,9 +113,24 @@ A key is `"<id>/<filename>"`, where `<id>` is the character folder (e.g.
 for a character that isn't covered returns `undefined`/empty rather than
 throwing). `parseScript(key)` is also exported: it classifies a key by its
 filename prefix into a `Script` — `"oracle-bone"` (`O_*`), `"bronze"` (`J_`, 金文),
-`"seal"` (`Z_`, 說文/篆), `"clerical"` (`L_`, 隸), `"regular"` (`K_`, modern 楷体),
-or `"other"` — which is how `glyphsForCharacter` labels and chronologically
-orders a character's forms.
+`"bamboo-silk"` (`W_`, 简牍帛书), `"seal"` (`Z_`, 說文/篆), `"clerical"` (`L_`, 隸),
+`"regular"` (`K_`/`X_`, modern 楷体/Kangxi forms), or `"other"` — which is how
+`glyphsForCharacter` labels and chronologically orders a character's forms.
+
+For UI labels, `describeGlyphKey(key)` and `translateGlyphLabel(label)` translate
+the dataset's common Chinese source terms into English while preserving catalog
+numbers and unknown artifact names:
+
+```ts
+describeGlyphKey("06592/J_毛公鼎西周晚期集成2841");
+// {
+//   script: "bronze",
+//   scriptLabel: "Bronze Script",
+//   translatedLabel: "J_Mao Gong Ding Late Western Zhou Jicheng 2841",
+//   duplicate: false,
+//   ...
+// }
+```
 
 The map is **not** taken from the repo's `Key&Value.json` — that file uses a
 different ID numbering than the image folders (it maps 㐁 to `"00001"`, but that

@@ -10,3 +10,13 @@ export {
   type RawGlyph,
   type Script,
 } from "./dataset.ts";
+export {
+  describeGlyphKey,
+  type GlyphKeyDescription,
+  type GlyphTerm,
+  GLYPH_TERM_TRANSLATIONS,
+  SCRIPT_METADATA,
+  type ScriptMetadata,
+  translateGlyphLabel,
+  translateGlyphTerm,
+} from "./translations.ts";

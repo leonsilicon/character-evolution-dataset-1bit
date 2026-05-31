@@ -17,16 +17,24 @@ export interface RawGlyph {
  * oldest → newest, which is also the chronological order used to lay out a
  * character's evolution.
  */
-export type Script = "oracle-bone" | "bronze" | "seal" | "clerical" | "regular" | "other";
+export type Script =
+  | "oracle-bone"
+  | "bronze"
+  | "bamboo-silk"
+  | "seal"
+  | "clerical"
+  | "regular"
+  | "other";
 
 /** Chronological rank of each {@link Script}, oldest first. */
 const SCRIPT_ORDER: Record<Script, number> = {
   "oracle-bone": 0,
   bronze: 1,
-  seal: 2,
-  clerical: 3,
-  regular: 4,
-  other: 5,
+  "bamboo-silk": 2,
+  seal: 3,
+  clerical: 4,
+  regular: 5,
+  other: 6,
 };
 
 /**
@@ -43,17 +51,21 @@ export interface CharacterGlyph {
 /**
  * Classify a glyph key (or bare filename) into a {@link Script} from its prefix.
  * The dataset encodes the script in the filename: `O_*` = oracle-bone, `J_` =
- * bronze (金文), `Z_` = seal/Shuowen small-seal (說文/篆), `L_` = clerical (隸),
- * `K_` = modern regular (楷体). Anything else falls back to "other".
+ * bronze (金文), `W_` = bamboo/silk slips (简牍帛书), `Z_` =
+ * seal/Shuowen small-seal (說文/篆), `L_` = clerical (隸), `K_`/`X_` =
+ * modern regular or Kangxi dictionary forms (楷体/康熙字). Anything else falls
+ * back to "other".
  */
 export function parseScript(keyOrFilename: string): Script {
   const slash = keyOrFilename.lastIndexOf("/");
   const filename = slash === -1 ? keyOrFilename : keyOrFilename.slice(slash + 1);
   if (filename.startsWith("O_")) return "oracle-bone";
   if (filename.startsWith("J_")) return "bronze";
+  if (filename.startsWith("W_")) return "bamboo-silk";
   if (filename.startsWith("Z_")) return "seal";
   if (filename.startsWith("L_")) return "clerical";
   if (filename.startsWith("K_")) return "regular";
+  if (filename.startsWith("X_")) return "regular";
   return "other";
 }
 
