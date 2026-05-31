@@ -51,7 +51,8 @@
     "test": "vp test",
     "check": "vp check",
     "dataset:source": "bun run src/__build-dataset.ts --source data/Dataset --out data/Dataset.bin --black-white false --quantize 256 --max-side 0 && bun run src/__split-source.ts",
-    "dataset:build": "bun run src/__build-dataset.ts --out dataset.bin",
+    "dataset:characters": "bun run src/__characters.ts",
+    "dataset:build": "bun run src/__characters.ts && bun run src/__build-dataset.ts --out dataset.bin --characters data/characters.json",
     "dataset:restore": "bun run src/__restore-dataset.ts",
     "prepublishOnly": "vp run build",
     "prepare": "vp config"

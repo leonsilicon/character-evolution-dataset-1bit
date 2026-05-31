@@ -13,6 +13,51 @@ export interface RawGlyph {
 }
 
 /**
+ * Broad script category of a glyph, derived from its filename prefix. Ordered
+ * oldest → newest, which is also the chronological order used to lay out a
+ * character's evolution.
+ */
+export type Script = "oracle-bone" | "bronze" | "seal" | "clerical" | "regular" | "other";
+
+/** Chronological rank of each {@link Script}, oldest first. */
+const SCRIPT_ORDER: Record<Script, number> = {
+  "oracle-bone": 0,
+  bronze: 1,
+  seal: 2,
+  clerical: 3,
+  regular: 4,
+  other: 5,
+};
+
+/**
+ * One glyph for a character, with its script classified and a chronological
+ * sort rank. `key` is the dataset key to pass to {@link DatasetReader.getRaw}.
+ */
+export interface CharacterGlyph {
+  key: string;
+  script: Script;
+  /** Chronological rank (oldest = 0); ties broken by key for stability. */
+  order: number;
+}
+
+/**
+ * Classify a glyph key (or bare filename) into a {@link Script} from its prefix.
+ * The dataset encodes the script in the filename: `O_*` = oracle-bone, `J_` =
+ * bronze (金文), `Z_` = seal/Shuowen small-seal (說文/篆), `L_` = clerical (隸),
+ * `K_` = modern regular (楷体). Anything else falls back to "other".
+ */
+export function parseScript(keyOrFilename: string): Script {
+  const slash = keyOrFilename.lastIndexOf("/");
+  const filename = slash === -1 ? keyOrFilename : keyOrFilename.slice(slash + 1);
+  if (filename.startsWith("O_")) return "oracle-bone";
+  if (filename.startsWith("J_")) return "bronze";
+  if (filename.startsWith("Z_")) return "seal";
+  if (filename.startsWith("L_")) return "clerical";
+  if (filename.startsWith("K_")) return "regular";
+  return "other";
+}
+
+/**
  * Decompress one zstd block. The reader is deliberately agnostic about *how*
  * decompression happens so it can run anywhere a `Uint8Array` is available
  * (Node, the browser, React Native) — the host supplies the implementation.
@@ -110,6 +155,8 @@ export class DatasetReader {
   #entryByKey: Map<string, DatasetEntry>;
   #cache = new Map<number, Uint8Array>();
   #cacheLimit: number;
+  /** Lazily built character → keys index (see {@link #ensureCharacterIndex}). */
+  #keysByCharacter: Map<string, string[]> | null = null;
 
   /**
    * Build a reader over an in-memory dataset.
@@ -202,6 +249,60 @@ export class DatasetReader {
    */
   characters(): Record<string, string> | undefined {
     return this.#header.characters;
+  }
+
+  /**
+   * Build (once) and return the character → keys index. Requires an embedded
+   * character map; without one there is no way to relate a character to its
+   * folders, so the index is empty. Keys are grouped by the character of their
+   * folder id and kept in stored order.
+   */
+  #ensureCharacterIndex(): Map<string, string[]> {
+    if (this.#keysByCharacter) return this.#keysByCharacter;
+    const index = new Map<string, string[]>();
+    const characters = this.#header.characters;
+    if (characters) {
+      for (const entry of this.#entries) {
+        const slash = entry.key.indexOf("/");
+        const id = slash === -1 ? entry.key : entry.key.slice(0, slash);
+        const char = characters[id];
+        if (char === undefined) continue;
+        let keys = index.get(char);
+        if (!keys) {
+          keys = [];
+          index.set(char, keys);
+        }
+        keys.push(entry.key);
+      }
+    }
+    this.#keysByCharacter = index;
+    return index;
+  }
+
+  /**
+   * All glyph keys for a character (e.g. `"㐁"`), in stored order. Empty when the
+   * character is unknown or the dataset carries no character map. Pass a key to
+   * {@link getRaw} to extract a glyph's pixels.
+   */
+  keysForCharacter(character: string): string[] {
+    return this.#ensureCharacterIndex().get(character)?.slice() ?? [];
+  }
+
+  /**
+   * The glyphs for a character with each key classified into a {@link Script}
+   * and assigned a chronological rank, sorted oldest → newest (ties broken by
+   * key). This is the shape a consumer renders as an evolution row. Empty when
+   * the character is unknown or unlabeled.
+   */
+  glyphsForCharacter(character: string): CharacterGlyph[] {
+    const keys = this.#ensureCharacterIndex().get(character);
+    if (!keys) return [];
+    return keys
+      .map((key): CharacterGlyph => {
+        const script = parseScript(key);
+        return { key, script, order: SCRIPT_ORDER[script] };
+      })
+      .sort((a, b) => a.order - b.order || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
   }
 
   /** Decompress (and cache) the block at the given index. */
