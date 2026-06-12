@@ -40,6 +40,7 @@
       "types": "./dist/_node.d.mts",
       "default": "./dist/_node.mjs"
     },
+    "./dataset.bin": "./dataset.bin",
     "./package.json": "./package.json"
   },
   "publishConfig": {
